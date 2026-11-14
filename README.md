@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Project_Code/figures/sentinel_logo.png" width="180" alt="Team Sentinel Logo">
+</p>
+
 # Sentinel
 
 **Explainable drug-response prediction from tumor genomics**
