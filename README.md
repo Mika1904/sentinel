@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Project_Code/figures/sentinel_logo.png" width="180" alt="Team Sentinel Logo">
+  <img src="Project_Code/figures/Sentinel_Logo.png" width="180" alt="Team Sentinel Logo">
 </p>
 
 # Sentinel

@@ -1,0 +1,44 @@
+/* Sentinel web app: page colours and layout (loaded by the notebook) */
+:root, .dark {
+  --body-background-fill: #1e2738;
+  --background-fill-primary: #273248;
+  --background-fill-secondary: #1e2738;
+  --block-background-fill: #273248;
+  --block-border-color: #3b4a66;
+  --border-color-primary: #3b4a66;
+  --input-background-fill: #1e2738;
+  --body-text-color: #eef1f6;
+  --block-label-text-color: #c9d2e3;
+  --block-title-text-color: #c9d2e3;
+  --button-primary-background-fill: #e8b04a;
+  --button-primary-background-fill-hover: #f0c26a;
+  --button-primary-text-color: #1e2738;
+}
+body, gradio-app, .gradio-container { background: #1e2738 !important; }
+.gradio-container { max-width: 1100px !important; margin: 0 auto !important; }
+#logo { display: flex; justify-content: center; }
+#logo img { width: 130px; border-radius: 50%; }
+
+.card { background: #fbf6e9; color: #1f2430; border-radius: 16px; padding: 22px 26px; }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.title { font-size: 24px; font-weight: 700; }
+.subtitle { color: #555c6b; margin-top: 2px; }
+.status { padding: 6px 14px; border-radius: 999px; font-weight: 700; white-space: nowrap; }
+.status.sensitive { background: #d8f0dc; color: #1d6b34; }
+.status.not-sensitive { background: #f6d5cf; color: #a3352a; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 18px; border-top: 1px solid #d9d2bf; padding-top: 14px; }
+.stat { padding: 0 14px; border-left: 1px solid #d9d2bf; }
+.stat:first-child { padding-left: 0; border-left: none; }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #555c6b; }
+.value { font-size: 28px; font-weight: 700; margin: 2px 0; }
+.hint { font-size: 13px; color: #555c6b; }
+.note { font-size: 13px; color: #555c6b; margin: 16px 0 0; }
+
+/* keep the card text dark (Gradio's dark mode would make it light) */
+.card .title, .card .value { color: #1f2430 !important; }
+.card .subtitle, .card .label, .card .hint, .card .note { color: #555c6b !important; }
+
+/* gene table: same font and colours as the rest of the page */
+#genes { --table-even-background-fill: #273248; --table-odd-background-fill: #222c40; --table-border-color: #3b4a66; }
+#genes, #genes * { font-family: var(--font) !important; }
+#genes th { background: #1e2738 !important; }
