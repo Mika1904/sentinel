@@ -1,0 +1,17 @@
+# Data files are downloaded from the Wellcome Sanger Institute by the notebooks.
+# The Sanger DepMap usage policy does not allow redistributing them, so they stay out of the repo.
+Project_Code/data/raw/
+Project_Code/data/processed/
+
+# Team planning notes (not part of the submission)
+Plan/
+PROJECT_HANDBOOK.md
+
+# macOS / editor clutter
+.DS_Store
+.Rhistory
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.venv/
+venv/
