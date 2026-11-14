@@ -16,7 +16,7 @@ All data in this project comes from the **Wellcome Sanger Institute** ([GDSC](ht
 1. **Sequenced cell lines only.** A cell line missing from the mutation table might simply not have been sequenced. We check `model_dataset_availability_20260727.csv` first and keep the 965 sequenced cell lines.
 2. **Non-cancer cell lines.** 7 sequenced lines are marked `Non-Cancerous` in `model_list_20261013.csv` and are removed before modelling, leaving 958 cancer cell lines and 239,081 drug-response rows.
 3. **Drug IDs vs drug names.** 9 drug names were screened under two different `DRUG_ID` values, so we group and model by `DRUG_ID` (295 drugs).
-4. **Excluded genes with repeated identical variants.** For 6 genes (`SDHA`, `CBLC`, `POLQ`, `KMT2C`, `HLA-A`, `HLA-B`), most listed mutations are the exact same DNA/protein change across unrelated cell lines (likely germline variants or sequencing artefacts). We leave these 6 genes out and keep the remaining 84 genes mutated in at least 20 cell lines.
+4. **Excluded genes with repeated identical variants.** For 8 genes (`SDHA`, `CBLC`, `POLQ`, `KMT2C`, `HLA-A`, `HLA-B`, `PABPC1`, `CLTCL1`), most listed mutations are the exact same DNA/protein change across unrelated cell lines (likely germline variants or sequencing artefacts). We leave these 8 genes out and keep the remaining 84 genes mutated in at least 20 cell lines.
 5. **Dose ranges.** Each drug was tested over its own concentration range, and in 71.8% of rows the fitted `IC50` is above the highest concentration tested. Raw `ln(IC50)` values are therefore always compared against that drug's own training average.
 
 ## Usage policy
