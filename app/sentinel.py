@@ -98,7 +98,8 @@ def drug_percentile(drug_ids, preds):
 
 
 # ---------- shortlist, gene effects and warnings (same as the notebook) ----------
-def rank_drugs(pred, top=10):
+def rank_drugs(pred, top=10, works_first=None):
+    works_first = B["POTENCY_PASS"] if works_first is None else works_first
     works = works_at_dose(DRUGS, pred)
     table = pd.DataFrame({
         "DRUG_ID": DRUGS,
@@ -110,7 +111,7 @@ def rank_drugs(pred, top=10):
         "Works at tested dose": np.where(works, "Yes", "No"),
         "Confidence": confidence.reindex(DRUGS).values,
     })
-    if B["POTENCY_PASS"]:
+    if works_first:
         table = table.sort_values(["Works at tested dose", "Percentile"], ascending=[False, True], kind="stable")
     else:
         table = table.sort_values("Percentile", kind="stable")
@@ -121,8 +122,8 @@ def rank_drugs(pred, top=10):
     return table
 
 
-def shortlist(tissue, mutated_genes, example_name=None, top=10):
-    return rank_drugs(predict(make_profile(tissue, mutated_genes, DRUGS), example_name), top)
+def shortlist(tissue, mutated_genes, example_name=None, top=10, works_first=None):
+    return rank_drugs(predict(make_profile(tissue, mutated_genes, DRUGS), example_name), top, works_first)
 
 
 def gene_effects(tissue, mutated_genes, drug_id, example_name=None, top=5):
@@ -206,7 +207,7 @@ def ask_for(text):
     return text, None, None, gr.update(choices=[], value=None), None
 
 
-def find_drugs(mode, line_name, tissue, genes):
+def find_drugs(mode, line_name, tissue, genes, potent_first=False):
     genes = genes or []
     if mode == EXAMPLE and not line_name:
         return ask_for("Please pick a held-out cell line.")
@@ -217,12 +218,14 @@ def find_drugs(mode, line_name, tissue, genes):
         example_name, name = line_name, line_name
     else:
         example_name, name = None, "Your cell line"
-    table = shortlist(tissue, genes, example_name)
+    table = shortlist(tissue, genes, example_name, works_first=potent_first)
     if mode == EXAMPLE:
         table = add_lab_result(table, line_name)
     # the flag follows the percentile shown, so the two never disagree at the boundary
     table["Predicted sensitive"] = np.where(table["Percentile"] <= round(100 * FLAG_LEVEL), "Yes", "No")
     summary = f"### {name}\n{tissue} · mutated: {', '.join(genes) if genes else 'none of the 84 genes'}"
+    if potent_first:
+        summary += "\n\nSorted with drugs that work at the tested dose first."
     n_flagged = int((table["Predicted sensitive"] == "Yes").sum())
     if n_flagged > 0:
         summary += f"\n\n**{n_flagged} of the top 10** are predicted sensitive (in the lowest {FLAG_LEVEL:.0%} for that drug)."
@@ -268,6 +271,7 @@ with gr.Blocks(title="Sentinel") as app:
             line_box = gr.Dropdown(TEST_LINES, value="SK-MEL-3", label="Held-out cell line")
             tissue_box = gr.Dropdown(TISSUES, value="Skin", label="Tissue", visible=False)
             gene_box = gr.Dropdown(GENES, value=["BRAF"], multiselect=True, label="Mutated genes", visible=False)
+        potent_box = gr.Checkbox(False, label="Show drugs that work at the tested dose first")
         find_button = gr.Button("Find drugs", variant="primary")
     summary_box = gr.Markdown()
     with gr.Tabs():
@@ -281,7 +285,7 @@ with gr.Blocks(title="Sentinel") as app:
     gr.Markdown("*Research prototype on lab cell lines, not medical advice. Data: GDSC2 and Cell Model Passports, "
                 "Wellcome Sanger Institute.*", elem_id="footer")
 
-    inputs = [mode, line_box, tissue_box, gene_box]
+    inputs = [mode, line_box, tissue_box, gene_box, potent_box]
     outputs = [summary_box, table_box, plot_box, drug_box, profile_state]
     mode.change(switch_mode, mode, [line_box, tissue_box, gene_box])
     find_button.click(find_drugs, inputs, outputs).then(why, [profile_state, drug_box], genes_box)
