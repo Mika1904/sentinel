@@ -12,7 +12,7 @@ AI + Health track · Veritas AI International High School Hackathon 2026
 *This project is a prototype and is not medical advice. All data comes from cancer cell lines grown in a laboratory, not from patients.*
 
 ## What it does
-Sentinel helps cancer researchers decide which drugs to test first on a new cell line. A researcher enters the cell line's tissue type and mutated genes, and Sentinel ranks all 295 screened drugs by how likely the cell line is to respond, gives each drug a confidence level, and shows which genes change each prediction the most.
+Sentinel helps cancer researchers decide which drugs to test first on a new cell line. A researcher enters the cell line's tissue type and mutated genes, and Sentinel ranks the 286 screened drugs (295 drug IDs) by how likely the cell line is to respond, flags the drugs predicted to be sensitive and gives each drug a confidence level. It also shows how a prediction changes when a gene is added or removed, though our stress test shows the model leans much more on tissue than on mutations.
 
 This matters because a laboratory can usually afford to test only a few drugs on each new cell line. Testing the most promising drugs first means fewer wasted experiments and faster answers about which mutations make tumours respond to which drugs, knowledge that doctors later use to match treatments to a patient's tumour. Sentinel does not make treatment decisions and has not been tested on patient samples.
 
@@ -37,6 +37,7 @@ All results are on 192 cell lines held out from training (47,468 drug results). 
 - **Missed cases and false alarms:** the final model finds 2,800 of 9,634 sensitive results (29.1%) and misses 6,834, with 1,476 false alarms (3.9%).
 - **How solid the gain is:** the final model beats the per-drug + tissue average on all 10 extra random splits, but only by 0.016 within-drug R² on average.
 - **Where it fails:** solid tumours (within-drug R² 0.077 for lung against 0.554 for blood cancers), tissues with very few cell lines, and rare mutations such as EGFR.
+- **Stress test:** the *Predicted sensitive* flag and confidence label are useful (64.5% of flagged drugs and 61.0% of High-confidence drugs in test shortlists were truly sensitive). But the model hardly uses mutations: adding TP53 moves Nutlin-3a by only 1.3 percentiles, although 53% of TP53-normal and 4% of TP53-mutant cell lines were sensitive in the lab. A separate model per drug is our next step.
 
 The notebook also checks results across sex and age groups and shows what the mutation features add.
 
@@ -48,7 +49,7 @@ The notebook also checks results across sex and age groups and shows what the mu
 | `Project_Code/data/DATA_SOURCES.md` | Where the data comes from, usage terms and citations |
 
 ## How to run
-Open the notebook in Google Colab (button above) and choose **Runtime → Run all**. Section 21 starts the Sentinel web app and prints a link to open it. The notebook downloads the public data from the Wellcome Sanger Institute automatically; no uploads or API keys are needed.
+Open the notebook in Google Colab (button above) and choose **Runtime → Run all**. Section 22 starts the Sentinel web app and prints a link to open it. The notebook downloads the public data from the Wellcome Sanger Institute automatically; no uploads or API keys are needed.
 
 ## Data and sources
-GDSC2 drug-response data and Cell Model Passports annotations, Wellcome Sanger Institute. Raw data is not stored in this repository (see `Project_Code/data/DATA_SOURCES.md` for sources, licence and citations). Software, papers and AI tools used are listed in Section 23 of the notebook.
+GDSC2 drug-response data and Cell Model Passports annotations, Wellcome Sanger Institute. Raw data is not stored in this repository (see `Project_Code/data/DATA_SOURCES.md` for sources, licence and citations). Software, papers and AI tools used are listed in Section 24 of the notebook.
