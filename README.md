@@ -9,6 +9,8 @@ AI + Health track · Veritas AI International High School Hackathon 2026
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Mika1904/sentinel/blob/main/Project_Code/Team_Sentinel_Health_AI.ipynb)
 
+**Try the app online:** [sentinel-rb92.onrender.com](https://sentinel-rb92.onrender.com) (the free server sleeps when idle, so the first load can take about a minute).
+
 *This project is a prototype and is not medical advice. All data comes from cancer cell lines grown in a laboratory, not from patients.*
 
 ## What it does
@@ -59,7 +61,7 @@ All results are on 192 cell lines held out from training (47,468 drug results), 
 | `Project_Code/data/DATA_SOURCES.md` | Where the data comes from, usage terms and citations |
 
 ## How to run
-All outputs are already saved in the notebook, so it can be read without running it. To run it, open the notebook in Google Colab (button above) and choose **Runtime → Run all**; the notebook downloads the public data from the Wellcome Sanger Institute itself, with no uploads or API keys. A full run takes roughly 15–25 minutes in free Colab, including a 1.3 GB expression download. Setting `RUN_STABILITY_CHECKS = False` in Section 1 skips the three repeated-split checks and saves about 40% of the time. Section 29 starts the Sentinel app and prints a link to open it.
+All outputs are already saved in the notebook, so it can be read without running it. To run it, open the notebook in Google Colab (button above) and choose **Runtime → Run all**; the notebook downloads the public data from the Wellcome Sanger Institute itself, with no uploads or API keys. A full run takes roughly 15–25 minutes in free Colab, including a 1.3 GB expression download. Setting `RUN_STABILITY_CHECKS = False` in Section 1 skips the three repeated-split checks and saves about 40% of the time. Section 29 starts the Sentinel app and prints a link to open it. The same app is hosted at [sentinel-rb92.onrender.com](https://sentinel-rb92.onrender.com) (code in `app/sentinel.py`).
 
 ## Data and sources
 GDSC2 drug-response data and Cell Model Passports annotations, mutations and RNA-seq expression, Wellcome Sanger Institute, used under the [Sanger DepMap Data Usage Policy](https://depmap.sanger.ac.uk/documentation/data-usage-policy/). Raw data is not stored in this repository (see `Project_Code/data/DATA_SOURCES.md` for files, licence and full citations).
