@@ -87,6 +87,11 @@ def predict(rows, example_name=None):
     return (1 - w) / 2 * (p_tissue + p_centered) + w * p_ridge
 
 
+def works_at_dose(drug_ids, preds):
+    # predicted IC50 below the drug's highest tested concentration
+    return np.asarray(preds) < np.log(pd.Series(drug_ids).map(B["drug_max_conc"]).values)
+
+
 def drug_percentile(drug_ids, preds):
     levels = B["percentile_levels"]
     return np.array([np.interp(p, B["percentile_values"][d], levels) for d, p in zip(drug_ids, preds)])
@@ -94,6 +99,7 @@ def drug_percentile(drug_ids, preds):
 
 # ---------- shortlist, gene effects and warnings (same as the notebook) ----------
 def rank_drugs(pred, top=10):
+    works = works_at_dose(DRUGS, pred)
     table = pd.DataFrame({
         "DRUG_ID": DRUGS,
         "name": drug_info.loc[DRUGS, "DRUG_NAME"].values,
@@ -101,9 +107,14 @@ def rank_drugs(pred, top=10):
         "Target": drug_info.loc[DRUGS, "PUTATIVE_TARGET"].values,
         "Percentile": drug_percentile(DRUGS, pred),
         "Predicted sensitive": np.where(pred <= flag_cutoff.reindex(DRUGS).values, "Yes", "No"),
+        "Works at tested dose": np.where(works, "Yes", "No"),
         "Confidence": confidence.reindex(DRUGS).values,
     })
-    table = table.sort_values("Percentile", kind="stable").drop_duplicates("name").drop(columns="name")
+    if B["POTENCY_PASS"]:
+        table = table.sort_values(["Works at tested dose", "Percentile"], ascending=[False, True], kind="stable")
+    else:
+        table = table.sort_values("Percentile", kind="stable")
+    table = table.drop_duplicates("name").drop(columns="name")
     table = table.head(top).reset_index(drop=True)
     table["Percentile"] = table["Percentile"].round().astype(int)
     table.insert(0, "Rank", range(1, len(table) + 1))
@@ -261,7 +272,7 @@ with gr.Blocks(title="Sentinel") as app:
     summary_box = gr.Markdown()
     with gr.Tabs():
         with gr.Tab("Top 10 drugs"):
-            table_box = gr.Dataframe(interactive=False, buttons=[], label="Lower percentile = more sensitive. Drug reliability = how well each drug was predicted in testing, not how sure the model is about this profile.")
+            table_box = gr.Dataframe(interactive=False, buttons=[], label="Lower percentile = more sensitive. Works at tested dose = predicted to reach 50% kill below the highest dose tested. Drug reliability = how well each drug was predicted in testing, not how sure the model is about this profile.")
         with gr.Tab("Chart"):
             plot_box = gr.Plot(show_label=False)
         with gr.Tab("Why this drug?"):
