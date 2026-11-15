@@ -5,6 +5,9 @@ It loads the fitted final model saved by the notebook (model_bundle.joblib) and 
 same prediction steps. No raw data is included. Research prototype, not medical advice.
 """
 import os
+import re
+import tempfile
+import urllib.parse
 
 import gradio as gr
 import joblib
@@ -201,22 +204,73 @@ def plot_shortlist(table, title):
 TEST_LINES = sorted(B["examples"])
 EXAMPLE, NEW_LINE = "Example: held-out cell line", "Enter a new cell line"
 LOGO = os.path.join(os.path.dirname(__file__), "..", "Project_Code", "figures", "Sentinel_Logo.png")
+GENE_LOOKUP = {g.upper(): g for g in GENES}
+
+
+def parse_genes(genes, pasted_genes=""):
+    # combine dropdown and pasted genes case-insensitively without duplicates
+    valid, unknown, seen = [], [], set()
+    for raw in list(genes or []) + re.split(r"[\s,;]+", pasted_genes or ""):
+        token = raw.strip()
+        if not token:
+            continue
+        canonical = GENE_LOOKUP.get(token.upper())
+        if canonical:
+            if canonical not in seen:
+                valid.append(canonical)
+                seen.add(canonical)
+        elif token not in unknown:
+            unknown.append(token)
+    return valid, unknown
+
+
+def target_mutated_marks(targets, mutated_genes):
+    # whole-word check against listed target text; display-only
+    escaped = [re.escape(g) for g in mutated_genes]
+    if not escaped:
+        return [""] * len(targets)
+    pattern = re.compile(r"(?<![A-Za-z0-9_])(?:" + "|".join(escaped) + r")(?![A-Za-z0-9_])")
+    return ["✓" if pattern.search(str(t)) else "" for t in targets]
+
+
+def pubchem_link(drug_id):
+    if drug_id is None or int(drug_id) not in drug_info.index:
+        return ""
+    row = drug_info.loc[int(drug_id)]
+    name, label = str(row["DRUG_NAME"]), str(row["label"])
+    nci_match = re.match(r"^NSC\s+(\d+)\s+\(NCI compound\)$", label)
+    if nci_match or name.isdigit():
+        num = nci_match.group(1) if nci_match else name
+        query, display_name = f"NSC{num}", label
+    else:
+        query = re.sub(r"\s*\(\d+\)$", "", name).strip()
+        display_name = query
+    return f"[Look up {display_name} on PubChem](https://pubchem.ncbi.nlm.nih.gov/#query={urllib.parse.quote(query)})"
+
+
+def write_shortlist_csv(table):
+    tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".csv", prefix="sentinel_shortlist_", delete=False, newline="", encoding="utf-8")
+    table.to_csv(tmp, index=False)
+    tmp.close()
+    return tmp.name
 
 
 def ask_for(text):
-    return text, None, None, gr.update(choices=[], value=None), None
+    return text, None, gr.update(value=None, visible=False), None, gr.update(choices=[], value=None), None, "", None
 
 
-def find_drugs(mode, line_name, tissue, genes, potent_first=False):
+def find_drugs(mode, line_name, tissue, genes, potent_first=False, pasted_genes=""):
     genes = genes or []
     if mode == EXAMPLE and not line_name:
         return ask_for("Please pick a held-out cell line.")
     if mode == NEW_LINE and not tissue:
         return ask_for("Please pick a tissue.")
+    unknown_genes = []
     if mode == EXAMPLE:
         tissue, genes = B["examples"][line_name]["tissue"], B["examples"][line_name]["genes"]
         example_name, name = line_name, line_name
     else:
+        genes, unknown_genes = parse_genes(genes, pasted_genes)
         example_name, name = None, "Your cell line"
     table = shortlist(tissue, genes, example_name, works_first=potent_first)
     if mode == EXAMPLE:
@@ -224,6 +278,8 @@ def find_drugs(mode, line_name, tissue, genes, potent_first=False):
     # the flag follows the percentile shown, so the two never disagree at the boundary
     table["Predicted sensitive"] = np.where(table["Percentile"] <= round(100 * FLAG_LEVEL), "Yes", "No")
     summary = f"### {name}\n{tissue} · mutated: {', '.join(genes) if genes else 'none of the 84 genes'}"
+    if unknown_genes:
+        summary += f"\n\nNot recognised: {', '.join(unknown_genes)}"
     if potent_first:
         summary += "\n\nSorted with drugs that work at the tested dose first."
     n_flagged = int((table["Predicted sensitive"] == "Yes").sum())
@@ -237,23 +293,70 @@ def find_drugs(mode, line_name, tissue, genes, potent_first=False):
     if any(not note.startswith(("No gene expression", "RNA-seq expression is missing")) for note in notes):
         summary += "\n\n**This profile is unusual for the model, so treat the whole list with extra caution.**"
     choices = [(drug, int(drug_id)) for drug, drug_id in zip(table["Drug"], table["DRUG_ID"])]
-    profile = {"tissue": tissue, "genes": list(genes), "example": example_name}
+    profile = {"tissue": tissue, "genes": list(genes), "example": example_name, "potent_first": bool(potent_first)}
     fig = plot_shortlist(table, "Top 10 drugs")
     plt.close(fig)
     shown = table.drop(columns="DRUG_ID").rename(columns={"Confidence": "Drug reliability"})
-    return (summary, shown, fig,
-            gr.update(choices=choices, value=choices[0][1]), profile)
+    shown.insert(shown.columns.get_loc("Target") + 1, "Target mutated", target_mutated_marks(shown["Target"], genes))
+    csv_path = write_shortlist_csv(shown)
+    return (summary, shown, gr.update(value=csv_path, visible=True), fig,
+            gr.update(choices=choices, value=choices[0][1]), profile, "", None)
 
 
 def why(profile, drug_id):
     if not profile or drug_id is None:
-        return None
-    return gene_effects(profile["tissue"], profile["genes"], int(drug_id), profile.get("example"))
+        return None, ""
+    effects = gene_effects(profile["tissue"], profile["genes"], int(drug_id), profile.get("example"))
+    return effects, pubchem_link(drug_id)
+
+
+def compare_gene(profile, gene):
+    if not profile or not gene:
+        return "Find a shortlist first, then choose a gene to compare.", None
+    genes = list(profile["genes"])
+    was_mutated = gene in genes
+    after_genes = [g for g in genes if g != gene] if was_mutated else genes + [gene]
+    potent_first = bool(profile.get("potent_first", False))
+    before = shortlist(profile["tissue"], genes, profile.get("example"), top=len(DRUGS), works_first=potent_first)
+    after = shortlist(profile["tissue"], after_genes, profile.get("example"), top=len(DRUGS), works_first=potent_first)
+    before_top = set(before.head(10)["DRUG_ID"])
+    after_top = set(after.head(10)["DRUG_ID"])
+    keep_ids = before_top | after_top
+    b_idx = before.set_index("DRUG_ID")
+    a_idx = after.set_index("DRUG_ID")
+    rows = []
+    for drug_id in keep_ids:
+        in_b, in_a = drug_id in b_idx.index, drug_id in a_idx.index
+        r_before = int(b_idx.loc[drug_id, "Rank"]) if in_b else None
+        r_after = int(a_idx.loc[drug_id, "Rank"]) if in_a else None
+        p_before = int(b_idx.loc[drug_id, "Percentile"]) if in_b else None
+        p_after = int(a_idx.loc[drug_id, "Percentile"]) if in_a else None
+        drug_name = a_idx.loc[drug_id, "Drug"] if in_a else b_idx.loc[drug_id, "Drug"]
+        if drug_id in after_top and drug_id not in before_top:
+            mark = "Entered top 10"
+        elif drug_id in before_top and drug_id not in after_top:
+            mark = "Left top 10"
+        else:
+            mark = ""
+        rows.append({
+            "Drug": drug_name,
+            "Rank before": r_before,
+            "Rank after": r_after,
+            "Percentile before": p_before,
+            "Percentile after": p_after,
+            "Top 10": mark,
+        })
+    comp = pd.DataFrame(rows).sort_values(["Rank after", "Rank before"], na_position="last", kind="stable").reset_index(drop=True)
+    for col in ["Rank before", "Rank after", "Percentile before", "Percentile after"]:
+        comp[col] = comp[col].astype("Int64")
+    direction = "mutated → not mutated" if was_mutated else "not mutated → mutated"
+    return f"Flipped **{gene}** ({direction}).", comp
 
 
 def switch_mode(mode):
     test_mode = mode == EXAMPLE
-    return gr.update(visible=test_mode), gr.update(visible=not test_mode), gr.update(visible=not test_mode)
+    return (gr.update(visible=test_mode), gr.update(visible=not test_mode),
+            gr.update(visible=not test_mode), gr.update(visible=not test_mode))
 
 
 FONT = gr.themes.GoogleFont("Inter")
@@ -271,26 +374,36 @@ with gr.Blocks(title="Sentinel") as app:
             line_box = gr.Dropdown(TEST_LINES, value="SK-MEL-3", label="Held-out cell line")
             tissue_box = gr.Dropdown(TISSUES, value="Skin", label="Tissue", visible=False)
             gene_box = gr.Dropdown(GENES, value=["BRAF"], multiselect=True, label="Mutated genes", visible=False)
+        paste_box = gr.Textbox(placeholder="e.g. TP53, BRAF, PIK3CA", label="Or paste mutated genes (comma or space separated)", visible=False)
         potent_box = gr.Checkbox(False, label="Show drugs that work at the tested dose first")
         find_button = gr.Button("Find drugs", variant="primary")
     summary_box = gr.Markdown()
     with gr.Tabs():
         with gr.Tab("Top 10 drugs"):
-            table_box = gr.Dataframe(interactive=False, buttons=[], label="Lower percentile = more sensitive. Works at tested dose = predicted to reach 50% kill below the highest dose tested. Drug reliability = how well each drug was predicted in testing, not how sure the model is about this profile.")
+            table_box = gr.Dataframe(interactive=False, buttons=[], label="Lower percentile = more sensitive. Target mutated = ✓ when the listed target contains one of your mutated genes. Works at tested dose = predicted to reach 50% kill below the highest dose tested. Drug reliability = how well each drug was predicted in testing, not how sure the model is about this profile.")
+            download_btn = gr.DownloadButton("Download shortlist (CSV)", visible=False)
         with gr.Tab("Chart"):
             plot_box = gr.Plot(show_label=False)
         with gr.Tab("Why this drug?"):
             drug_box = gr.Dropdown(label="Pick a drug", choices=[])
+            pubchem_box = gr.Markdown()
             genes_box = gr.Dataframe(interactive=False, buttons=[], label="Genes that move this prediction most (negative shift = more sensitive)")
+        with gr.Tab("Compare"):
+            with gr.Row():
+                compare_gene_box = gr.Dropdown(GENES, value="TP53", label="Gene to flip")
+                compare_button = gr.Button("Compare", variant="secondary")
+            compare_note = gr.Markdown()
+            compare_box = gr.Dataframe(interactive=False, buttons=[], label="Drugs in either top 10 before or after flipping the chosen gene, sorted by Rank after.")
     gr.Markdown("*Research prototype on lab cell lines, not medical advice. Data: GDSC2 and Cell Model Passports, "
                 "Wellcome Sanger Institute.*", elem_id="footer")
 
-    inputs = [mode, line_box, tissue_box, gene_box, potent_box]
-    outputs = [summary_box, table_box, plot_box, drug_box, profile_state]
-    mode.change(switch_mode, mode, [line_box, tissue_box, gene_box])
-    find_button.click(find_drugs, inputs, outputs).then(why, [profile_state, drug_box], genes_box)
-    app.load(find_drugs, inputs, outputs).then(why, [profile_state, drug_box], genes_box)
-    drug_box.change(why, [profile_state, drug_box], genes_box)
+    inputs = [mode, line_box, tissue_box, gene_box, potent_box, paste_box]
+    outputs = [summary_box, table_box, download_btn, plot_box, drug_box, profile_state, compare_note, compare_box]
+    mode.change(switch_mode, mode, [line_box, tissue_box, gene_box, paste_box])
+    find_button.click(find_drugs, inputs, outputs).then(why, [profile_state, drug_box], [genes_box, pubchem_box])
+    app.load(find_drugs, inputs, outputs).then(why, [profile_state, drug_box], [genes_box, pubchem_box])
+    drug_box.change(why, [profile_state, drug_box], [genes_box, pubchem_box])
+    compare_button.click(compare_gene, [profile_state, compare_gene_box], [compare_note, compare_box])
 
 if __name__ == "__main__":
     # Render sets PORT; locally the app opens on port 7860
