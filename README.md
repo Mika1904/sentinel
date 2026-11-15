@@ -49,7 +49,7 @@ The notebook also checks results across sex and age groups and shows what the mu
 | `Project_Code/data/DATA_SOURCES.md` | Where the data comes from, usage terms and citations |
 
 ## How to run
-Open the notebook in Google Colab (button above) and choose **Runtime → Run all**. Section 22 starts the Sentinel web app and prints a link to open it. The notebook downloads the public data from the Wellcome Sanger Institute automatically; no uploads or API keys are needed.
+Open the notebook in Google Colab (button above) and choose **Runtime → Run all**. Section 23 starts the Sentinel web app and prints a link to open it. The notebook downloads the public data from the Wellcome Sanger Institute automatically; no uploads or API keys are needed.
 
 ## Data and sources
-GDSC2 drug-response data and Cell Model Passports annotations, Wellcome Sanger Institute. Raw data is not stored in this repository (see `Project_Code/data/DATA_SOURCES.md` for sources, licence and citations). Software, papers and AI tools used are listed in Section 24 of the notebook.
+GDSC2 drug-response data and Cell Model Passports annotations, Wellcome Sanger Institute. Raw data is not stored in this repository (see `Project_Code/data/DATA_SOURCES.md` for sources, licence and citations). Software, papers and AI tools used are listed in Section 25 of the notebook.
