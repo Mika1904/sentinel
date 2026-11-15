@@ -14,7 +14,7 @@ AI + Health track · Veritas AI International High School Hackathon 2026
 ## What it does
 Sentinel helps cancer researchers decide which drugs to test first on a new cell line. A researcher enters the cell line's tissue type and mutated genes, and Sentinel ranks the 286 screened drugs (295 drug IDs) by how likely the cell line is to respond, flags the drugs predicted to be sensitive and gives each drug a confidence level. It also shows how a prediction changes when a gene is added or removed, though our stress test shows the model leans much more on tissue than on mutations.
 
-This matters because a laboratory can usually afford to test only a few drugs on each new cell line. Testing the most promising drugs first means fewer wasted experiments and faster answers about which mutations make tumours respond to which drugs, knowledge that doctors later use to match treatments to a patient's tumour. Sentinel does not make treatment decisions and has not been tested on patient samples.
+This matters because a laboratory can usually afford to test only a few drugs on each new cell line. Testing the most promising drugs first means fewer wasted experiments and faster answers about which mutations make tumors respond to which drugs, knowledge that doctors later use to match treatments to a patient's tumor. Sentinel does not make treatment decisions and has not been tested on patient samples.
 
 <p align="center">
   <img src="Project_Code/figures/plot11_drug_shortlist.png" width="600" alt="Drug shortlist for the held-out cell line SK-MEL-3">
@@ -36,7 +36,7 @@ All results are on 192 cell lines held out from training (47,468 drug results). 
 - **Shortlist:** 44.3% of the drugs in Sentinel's top 10 were truly sensitive, against 41.6% for the per-drug + tissue average and 20.3% for random drugs.
 - **Missed cases and false alarms:** the final model finds 2,800 of 9,634 sensitive results (29.1%) and misses 6,834, with 1,476 false alarms (3.9%).
 - **How solid the gain is:** the final model beats the per-drug + tissue average on all 10 extra random splits, but only by 0.016 within-drug R² on average.
-- **Where it fails:** solid tumours (within-drug R² 0.077 for lung against 0.554 for blood cancers), tissues with very few cell lines, and rare mutations such as EGFR.
+- **Where it fails:** solid tumors (within-drug R² 0.077 for lung against 0.554 for blood cancers), tissues with very few cell lines, and rare mutations such as EGFR.
 - **Stress test:** the *Predicted sensitive* flag and confidence label are useful (64.5% of flagged drugs and 61.0% of High-confidence drugs in test shortlists were truly sensitive). But the model hardly uses mutations: adding TP53 moves Nutlin-3a by only 1.3 percentiles, although 53% of TP53-normal and 4% of TP53-mutant cell lines were sensitive in the lab. A separate model per drug is our next step.
 
 The notebook also checks results across sex and age groups and shows what the mutation features add.
