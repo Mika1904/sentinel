@@ -2,7 +2,7 @@
 
 All data in this project comes from the **Wellcome Sanger Institute** ([GDSC](https://www.cancerrxgene.org/) and [Cell Model Passports](https://cellmodelpassports.sanger.ac.uk/downloads)). It covers cancer cell lines grown in the lab and contains no patient records.
 
-## Files used in `Sentinel.ipynb`
+## Files used in `Team_Sentinel_Health_AI.ipynb`
 
 | File | What it contains | Download URL |
 |---|---|---|
@@ -21,7 +21,7 @@ All data in this project comes from the **Wellcome Sanger Institute** ([GDSC](ht
 
 ## Usage policy
 
-Under the [Sanger DepMap Data Usage Policy](https://depmap.sanger.ac.uk/documentation/data-usage-policy/), the data is free to use for academic and educational research but should not be redistributed. For that reason, raw files are not committed to this repository; `Sentinel.ipynb` downloads them directly from Sanger when run.
+Under the [Sanger DepMap Data Usage Policy](https://depmap.sanger.ac.uk/documentation/data-usage-policy/), the data is free to use for academic and educational research but should not be redistributed. For that reason, raw files are not committed to this repository; `Team_Sentinel_Health_AI.ipynb` downloads them directly from Sanger when run.
 
 ## Citations and tools
 
