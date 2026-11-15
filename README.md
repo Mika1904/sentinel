@@ -34,7 +34,7 @@ All results are on 192 cell lines held out from training (47,468 drug results). 
 | First final model (50/50 blend of the tissue average and a drug-centered LightGBM) | 1.302 | 0.204 |
 | **Improved final model** (equal thirds: tissue average, drug-centered LightGBM, per-drug ridge regression) | **1.297** | **0.210** |
 
-- **Shortlist:** 45.2% of the drugs in Sentinel's top 10 were truly sensitive, against 44.3% for the first final model, 41.6% for the per-drug + tissue average and 20.3% for random drugs. The gain over the first model is small and not re-checked on repeated splits.
+- **Shortlist:** 45.2% of the drugs in Sentinel's top 10 were truly sensitive, against 44.3% for the first final model, 41.6% for the per-drug + tissue average and 20.3% for random drugs. Across 10 repeated splits the improved model beats the first model on all 10 by 0.007 within-drug R² on average (range 0.003 to 0.013), and beats the per-drug + tissue average by 0.024 (range 0.014 to 0.029).
 - **Missed cases and false alarms:** flagging at the 30% level, the improved model finds 3,885 of 9,634 sensitive results (40.3%) and misses 5,749, with 2,598 false alarms (6.9%). At the strict 20% level it finds 2,233 (23.2%) with 1,051 false alarms (2.8%).
 - **How solid the gain is:** the first final model beats the per-drug + tissue average on all 10 extra random splits, but only by 0.016 within-drug R² on average.
 - **Where it fails:** solid tumors (first final model: within-drug R² 0.077 for lung against 0.554 for blood cancers), tissues with very few cell lines, and rare mutations such as EGFR.
@@ -54,7 +54,7 @@ The notebook also checks results across sex and age groups and shows what the mu
 | `Project_Code/data/DATA_SOURCES.md` | Where the data comes from, usage terms and citations |
 
 ## How to run
-Open the notebook in Google Colab (button above) and choose **Runtime → Run all**. Section 23 starts the Sentinel web app and prints a link to open it. The notebook downloads the public data from the Wellcome Sanger Institute automatically; no uploads or API keys are needed.
+Open the notebook in Google Colab (button above) and choose **Runtime → Run all**. Section 24 starts the Sentinel web app and prints a link to open it. The notebook downloads the public data from the Wellcome Sanger Institute automatically; no uploads or API keys are needed.
 
 ## Data and sources
-GDSC2 drug-response data and Cell Model Passports annotations, Wellcome Sanger Institute. Raw data is not stored in this repository (see `Project_Code/data/DATA_SOURCES.md` for sources, licence and citations). Software, papers and AI tools used are listed in Section 25 of the notebook.
+GDSC2 drug-response data and Cell Model Passports annotations, Wellcome Sanger Institute. Raw data is not stored in this repository (see `Project_Code/data/DATA_SOURCES.md` for sources, licence and citations). Software, papers and AI tools used are listed in Section 26 of the notebook.
