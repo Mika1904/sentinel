@@ -150,11 +150,16 @@ def input_warnings(tissue, mutated_genes, example_name=None):
     counts = B["tissue_gene_counts"]
     unseen = [g for g in mutated_genes if tissue in counts.index and counts.loc[tissue, g] == 0]
     if unseen and n_tissue > 0:
-        notes.append(f"No {tissue} training cell line has a mutation in {short_list(unseen)}.")
+        notes.append(f"None of the {tissue} cell lines the model learned from has a mutation in {short_list(unseen)}, "
+                     "so the model's estimate for these genes here is borrowed from other tissues.")
     if len(mutated_genes) > B["max_genes"]:
         notes.append(f"{len(mutated_genes)} mutated genes is more than any training cell line has ({B['max_genes']}).")
+    elif len(mutated_genes) > 10:
+        notes.append(f"{len(mutated_genes)} mutated genes is unusual: real cell lines in our data rarely have more than 10 of "
+                     "these 84 genes mutated. With many mutations the model tends to call too many drugs sensitive.")
     if example_name is None:
-        notes.append("Expression not provided, so the tissue average is used.")
+        notes.append(f"No gene expression data was entered, so the app assumes the average expression of {tissue} cell lines. "
+                     "Predictions are less precise than for the example cell lines, which use their own RNA-seq data.")
     elif not B["examples"][example_name]["has_rnaseq"]:
         notes.append("RNA-seq expression is missing for this cell line, so the tissue average is used.")
     return notes
@@ -204,19 +209,25 @@ def find_drugs(mode, line_name, tissue, genes):
     table = shortlist(tissue, genes, example_name)
     if mode == EXAMPLE:
         table = add_lab_result(table, line_name)
+    # the flag follows the percentile shown, so the two never disagree at the boundary
+    table["Predicted sensitive"] = np.where(table["Percentile"] <= round(100 * FLAG_LEVEL), "Yes", "No")
     summary = f"### {name}\n{tissue} · mutated: {', '.join(genes) if genes else 'none of the 84 genes'}"
     n_flagged = int((table["Predicted sensitive"] == "Yes").sum())
     if n_flagged > 0:
         summary += f"\n\n**{n_flagged} of the top 10** are predicted sensitive (in the lowest {FLAG_LEVEL:.0%} for that drug)."
     else:
         summary += f"\n\n**No drug is predicted sensitive** for this profile (none reaches the lowest {FLAG_LEVEL:.0%}), so treat the list as weak candidates."
-    for note in input_warnings(tissue, genes, example_name):
+    notes = input_warnings(tissue, genes, example_name)
+    for note in notes:
         summary += f"\n\n**Caution:** {note}"
+    if any(not note.startswith(("No gene expression", "RNA-seq expression is missing")) for note in notes):
+        summary += "\n\n**This profile is unusual for the model, so treat the whole list with extra caution.**"
     choices = [(drug, int(drug_id)) for drug, drug_id in zip(table["Drug"], table["DRUG_ID"])]
     profile = {"tissue": tissue, "genes": list(genes), "example": example_name}
     fig = plot_shortlist(table, "Top 10 drugs")
     plt.close(fig)
-    return (summary, table.drop(columns="DRUG_ID"), fig,
+    shown = table.drop(columns="DRUG_ID").rename(columns={"Confidence": "Drug reliability"})
+    return (summary, shown, fig,
             gr.update(choices=choices, value=choices[0][1]), profile)
 
 
@@ -250,7 +261,7 @@ with gr.Blocks(title="Sentinel") as app:
     summary_box = gr.Markdown()
     with gr.Tabs():
         with gr.Tab("Top 10 drugs"):
-            table_box = gr.Dataframe(interactive=False, buttons=[], label="Lower percentile = more sensitive")
+            table_box = gr.Dataframe(interactive=False, buttons=[], label="Lower percentile = more sensitive. Drug reliability = how well each drug was predicted in testing, not how sure the model is about this profile.")
         with gr.Tab("Chart"):
             plot_box = gr.Plot(show_label=False)
         with gr.Tab("Why this drug?"):
