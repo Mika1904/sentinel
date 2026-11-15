@@ -55,7 +55,7 @@ Across Sections 24–27 we compared **19 candidate settings** by 3-fold training
 | `Project_Code/data/DATA_SOURCES.md` | Where the data comes from, usage terms and citations |
 
 ## How to run
-Open the notebook in Google Colab (button above) and choose **Runtime → Run all**. Section 29 starts the Sentinel web app and prints a link to open it. The notebook downloads the public data from the Wellcome Sanger Institute automatically; no uploads or API keys are needed.
+Open the notebook in Google Colab (button above) and choose **Runtime → Run all**. Section 29 starts the Sentinel web app and prints a link to open it. All outputs are already saved in the notebook, so it can be read without running it. A full run takes roughly 15–25 minutes in free Colab (including a 1.3 GB expression download); setting `RUN_STABILITY_CHECKS = False` in Section 1 skips the three repeated-split checks and saves about 40% of the time. The notebook downloads the public data from the Wellcome Sanger Institute automatically; no uploads or API keys are needed.
 
 ## Data and sources
 GDSC2 drug-response data and Cell Model Passports annotations, mutations and RNA-seq expression, Wellcome Sanger Institute, used under the [Sanger DepMap Data Usage Policy](https://depmap.sanger.ac.uk/documentation/data-usage-policy/). Raw data is not stored in this repository (see `Project_Code/data/DATA_SOURCES.md` for files, licence and full citations).
