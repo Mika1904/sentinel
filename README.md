@@ -12,9 +12,9 @@ AI + Health track · Veritas AI International High School Hackathon 2026
 *This project is a prototype and is not medical advice. All data comes from cancer cell lines grown in a laboratory, not from patients.*
 
 ## What it does
-Sentinel is for a cancer researcher who has a new cancer cell line and only enough time and budget to test a few drugs on it. They enter the cell line's tissue type and mutated genes, and Sentinel ranks all 295 screened drugs by how likely the cell line is to respond, with a confidence level for each drug and the genes that move each prediction most.
+Sentinel helps cancer researchers decide which drugs to test first on a new cell line. A researcher enters the cell line's tissue type and mutated genes, and Sentinel ranks all 295 screened drugs by how likely the cell line is to respond, gives each drug a confidence level, and shows which genes change each prediction the most.
 
-Running the most promising experiments first gives faster answers about which mutations make tumours respond to which drugs, the knowledge doctors later use to match treatments to a patient's tumour. Sentinel does not make treatment decisions and has not been tested on patient samples.
+This matters because a laboratory can usually afford to test only a few drugs on each new cell line. Testing the most promising drugs first means fewer wasted experiments and faster answers about which mutations make tumours respond to which drugs, knowledge that doctors later use to match treatments to a patient's tumour. Sentinel does not make treatment decisions and has not been tested on patient samples.
 
 <p align="center">
   <img src="Project_Code/figures/plot11_drug_shortlist.png" width="600" alt="Drug shortlist for the held-out cell line SK-MEL-3">
