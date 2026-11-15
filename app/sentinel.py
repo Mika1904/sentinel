@@ -408,4 +408,4 @@ with gr.Blocks(title="Sentinel") as app:
 if __name__ == "__main__":
     # Render sets PORT; locally the app opens on port 7860
     app.launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)),
-               theme=THEME, css=CSS, footer_links=[])
+               theme=THEME, css=CSS, footer_links=[], favicon_path=LOGO if os.path.exists(LOGO) else None)
