@@ -7,6 +7,7 @@ All data in this project comes from the **Wellcome Sanger Institute** ([GDSC](ht
 | File | What it contains | Download URL |
 |---|---|---|
 | `GDSC2_fitted_dose_response_27Oct23.xlsx` | Drug response (`LN_IC50`), drug ID, drug name and putative target for 242,036 cell line x drug experiments | `https://cmp.cog.sanger.ac.uk/download/GDSC2_fitted_dose_response_27Oct23.xlsx` |
+| `GDSC1_fitted_dose_response_27Oct23.xlsx` | The older, separate GDSC drug screen; used only for the outside check at the end of Section 28 | `https://cmp.cog.sanger.ac.uk/download/GDSC1_fitted_dose_response_27Oct23.xlsx` |
 | `model_list_20261013.csv` | Cell line metadata (`model_id`, tissue, cancer type, patient sex and age at sampling) | `https://cog.sanger.ac.uk/cmp/download/model_list_20261013.csv` |
 | `mutations_summary_20260724.zip` | Driver gene mutations per sequenced cell line | `https://cog.sanger.ac.uk/cmp/download/mutations_summary_20260724.zip` |
 | `model_dataset_availability_20260727.csv` | Records which cell lines have whole-exome or whole-genome sequencing | `https://cog.sanger.ac.uk/cmp/download/model_dataset_availability_20260727.csv` |
