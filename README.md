@@ -7,6 +7,8 @@
 **Which cancer drugs should a lab test first?**
 AI + Health track · Veritas AI International High School Hackathon 2026
 
+> **In plain words:** a lab enters a new cancer cell line's tissue and mutated genes, and Sentinel ranks 286 drugs so the most promising are tested first. On 192 cell lines the model never saw, **about half (52%) of its top-10 drugs were truly sensitive in the lab, against 1 in 5 (20%) picked at random.** It still misses about 6 in 10 sensitive results, so it helps decide what to test first, not what to skip.
+
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Mika1904/sentinel/blob/main/Project_Code/Team_Sentinel_Health_AI.ipynb)
 
 **Try the app online:** [sentinel-rb92.onrender.com](https://sentinel-rb92.onrender.com) (the free server sleeps when idle, so the first load can take about a minute).
