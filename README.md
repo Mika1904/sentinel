@@ -13,6 +13,8 @@ AI + Health track · Veritas AI International High School Hackathon 2026
 
 **Write-up:** [Google Doc](https://docs.google.com/document/d/1fMe7WM7WkJC7qbo7Z4hwHfJjHqzGYqJp_4EZj1_s7x0/edit?usp=sharing)
 
+**Demo video (2 min):** [YouTube](https://youtu.be/8nT2pGRYafc)
+
 *This project is a prototype and is not medical advice. All data comes from cancer cell lines grown in a laboratory, not from patients.*
 
 ## What it does
