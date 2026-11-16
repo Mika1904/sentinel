@@ -2,7 +2,7 @@
   <img src="Project_Code/figures/Sentinel_Logo.png" width="180" alt="Team Sentinel Logo">
 </p>
 
-# Sentinel
+# Sentinel: Predicting Cancer Drug Response
 
 **Which cancer drugs should a lab test first?**
 AI + Health track · Veritas AI International High School Hackathon 2026
