@@ -31,7 +31,7 @@ A laboratory can usually afford to test only a few drugs on each new cell line. 
 For SK-MEL-3, a melanoma cell line the model never saw, the top two drugs are the BRAF inhibitors Dabrafenib and PLX-4720, and both were sensitive in the lab.
 
 ## Results
-All results are on 192 cell lines held out from training (47,468 drug results), which were never used to choose anything. Knowing the drug alone already gives R² = 0.716, so we compare methods by **within-drug R²**: how much of the difference between cell lines on the same drug a method explains.
+Unless a line says otherwise, results are on 192 cell lines held out from training (47,468 drug results); no model setting was tuned on them. Knowing the drug alone already gives R² = 0.716, so we compare methods by **within-drug R²**: how much of the difference between cell lines on the same drug a method explains.
 
 | Method | RMSE | Within-drug R² |
 |---|---|---|
@@ -39,7 +39,7 @@ All results are on 192 cell lines held out from training (47,468 drug results), 
 | Per-drug + tissue average | 1.324 | 0.177 |
 | Linear regression | 1.403 | 0.076 |
 | First LightGBM | 1.339 | 0.159 |
-| First final model (tissue average blended with LightGBM) | 1.302 | 0.204 |
+| First final model (tissue average blended with drug-centered LightGBM) | 1.302 | 0.204 |
 | Mutation model (adds a ridge regression for each drug) | 1.297 | 0.210 |
 | **Final model** (adds RNA-seq gene expression) | **1.235** | **0.284** |
 

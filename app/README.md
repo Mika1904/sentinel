@@ -1,8 +1,8 @@
 # Sentinel app (hosted version)
 
-A standalone version of the app in Section 29 of `Project_Code/Team_Sentinel_Health_AI.ipynb`, deployed on Render with `render.yaml` in the repository root.
+A standalone version of the app in Section 30 of `Project_Code/Team_Sentinel_Health_AI.ipynb`, deployed on Render with `render.yaml` in the repository root.
 
-- `model_bundle.joblib` is saved by the notebook (Section 29). It holds only the fitted final model and summary statistics, not the raw Sanger data.
+- `model_bundle.joblib` is saved by the notebook (Section 30). It holds only the fitted final model and summary statistics, not the raw Sanger data.
 - Predictions are identical to the notebook's. Each drug's percentile is read from a 1%-step summary of its training results instead of the raw values, so the order of drugs with very close scores can differ slightly from the notebook.
 - Run it locally with `python app/sentinel.py` (after `pip install -r app/requirements.txt`).
 
