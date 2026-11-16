@@ -11,6 +11,8 @@ AI + Health track · Veritas AI International High School Hackathon 2026
 
 **Try the app online:** [sentinel-rb92.onrender.com](https://sentinel-rb92.onrender.com) (the free server sleeps when idle, so the first load can take about a minute).
 
+**Write-up:** [Google Doc](https://docs.google.com/document/d/1fMe7WM7WkJC7qbo7Z4hwHfJjHqzGYqJp_4EZj1_s7x0/edit?usp=sharing)
+
 *This project is a prototype and is not medical advice. All data comes from cancer cell lines grown in a laboratory, not from patients.*
 
 ## What it does
